@@ -112,7 +112,9 @@
                         android:layout_height="@dimen/viewers_icon_size"
                         android:layout_gravity="center_vertical"
                         android:layout_marginStart="@dimen/viewers_icon_margin"
+                        android:layout_marginEnd="@dimen/viewers_icon_margin"
                         android:layout_marginLeft="@dimen/viewers_icon_margin"
+                        android:layout_marginRight="@dimen/viewers_icon_margin"
                         android:contentDescription="@string/stream_viewers"
                         android:tint="@color/white"
                         app:srcCompat="@drawable/ic_group" />
