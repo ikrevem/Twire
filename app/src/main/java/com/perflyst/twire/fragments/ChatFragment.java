@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -78,7 +79,7 @@ interface EmoteKeyboardDelegate {
 }
 
 public class ChatFragment extends Fragment implements EmoteKeyboardDelegate, ChatAdapter.ChatAdapterCallback {
-    private static final Integer[] supportedUnicodeEmotes = new Integer[]{
+    private static final Integer[] supportedUnicodeEmotes = {
             0x1F600, 0x1F601, 0x1F602, 0x1F603, 0x1F604, 0x1F605, 0x1F606, 0x1F607, 0x1F608, 0x1F609, 0x1F60A, 0x1F60B, 0x1F60C, 0x1F60D, 0x1F60E, 0x1F60F,
             0x1F610, 0x1F611, 0x1F612, 0x1F613, 0x1F614, 0x1F615, 0x1F616, 0x1F617, 0x1F618, 0x1F619, 0x1F61A, 0x1F61B, 0x1F61C, 0x1F61D, 0x1F61E, 0x1F61F,
             0x1F620, 0x1F621, 0x1F622, 0x1F623, 0x1F624, 0x1F625, 0x1F626, 0x1F627, 0x1F628, 0x1F629, 0x1F62A, 0x1F62B, 0x1F62C, 0x1F62D, 0x1F62E, 0x1F62F,
@@ -456,7 +457,7 @@ public class ChatFragment extends Fragment implements EmoteKeyboardDelegate, Cha
         if (subscriberEmotesLoaded.size() > 0 && adapter != null && getContext() != null) {
             Log.d(LOG_TAG, "Adding subscriber emotes: " + subscriberEmotesLoaded.size());
 
-            Drawable icon = ContextCompat.getDrawable(getContext(), R.drawable.ic_money);
+            Drawable icon = AppCompatResources.getDrawable(getContext(), R.drawable.ic_attach_money);
             if (icon == null) return;
             icon.setColorFilter(new PorterDuffColorFilter(unselectedTabColorRes, PorterDuff.Mode.SRC_IN));
 
@@ -778,7 +779,7 @@ public class ChatFragment extends Fragment implements EmoteKeyboardDelegate, Cha
                                 View view = mRootWindow.getDecorView();
                                 view.getWindowVisibleDisplayFrame(r);
 
-                                if (lastBottom > r.bottom && (lastBottom - r.bottom) > 200 &&
+                                if (lastBottom > r.bottom && lastBottom - r.bottom > 200 &&
                                         getResources().getConfiguration().orientation
                                                 == Configuration.ORIENTATION_PORTRAIT) {
                                     Log.d(LOG_TAG, "Soft Keyboard shown");

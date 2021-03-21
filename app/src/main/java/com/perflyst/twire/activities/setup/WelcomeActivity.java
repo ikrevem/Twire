@@ -3,11 +3,9 @@ package com.perflyst.twire.activities.setup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -22,19 +20,17 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import com.perflyst.twire.R;
 import com.perflyst.twire.service.Service;
+import com.perflyst.twire.utils.AnimationListenerAdapter;
 
 import io.codetail.animation.SupportAnimator;
 import io.codetail.animation.ViewAnimationUtils;
 
 
-public class WelcomeActivity extends AppCompatActivity {
+public class WelcomeActivity extends SetupBaseActivity {
     final int REVEAL_ANIMATION_DURATION = 650;
-    final int REVEAL_ANIMATION_DELAY_DURATION = 200;
+    final int REVEAL_ANIMATION_DELAY = 200;
     final int ANIMATIONS_START_DELAY = 500;
     final int LOGO_ANIMATION_DURATION = 1000;
     final int LOGO_Container_ANIMATION_DURATION = 1750;
@@ -89,58 +85,28 @@ public class WelcomeActivity extends AppCompatActivity {
 
         // Change the position of the WelcomeText. Doing it this way is more dynamic, instead of a fixed
         // DP length from the bottom
-        int yPosition = (int) (2.5 * (getScreenHeight() / 5));
+        int yPosition = (int) (2.5 * (Service.getScreenHeight(this) / 5));
         mWelcomeText.setY(yPosition);
 
         // Start the animations. Make sure the animations that in the correct order,
         // by adding Animation Listeners that start the next animation on animation end.
         new Handler().postDelayed(() -> {
-            startLogoContainerAnimations().setAnimationListener(new Animation.AnimationListener() {
+            startLogoContainerAnimations().setAnimationListener(new AnimationListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animation animation) {
                     mLogoContainer.setVisibility(View.VISIBLE);
                 }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
             });
-            startLogoOuterAnimations().setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-
-                }
-
+            startLogoOuterAnimations().setAnimationListener(new AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     startWelcomeTextLineAnimations(mWelcomeTextLineOne, 1);
-                    startWelcomeTextLineAnimations(mWelcomeTextLineTwo, 2).setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-
-                        }
-
+                    startWelcomeTextLineAnimations(mWelcomeTextLineTwo, 2).setAnimationListener(new AnimationListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animation animation) {
                             startContinueFABAnimations();
                         }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-
-                        }
                     });
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
                 }
             });
         }, ANIMATIONS_START_DELAY);
@@ -216,13 +182,13 @@ public class WelcomeActivity extends AppCompatActivity {
             });
 
             whiteTransitionAnimation.start();
-            blueTransitionAnimation.setStartDelay(REVEAL_ANIMATION_DELAY_DURATION);
+            blueTransitionAnimation.setStartDelay(REVEAL_ANIMATION_DELAY);
             blueTransitionAnimation.start();
 
             new Handler().postDelayed(() -> {
                 Log.d(LOG_TAG, "Navigating To Login Activity");
                 navigateToLoginActivity();
-            }, REVEAL_ANIMATION_DELAY_DURATION + REVEAL_ANIMATION_DURATION);
+            }, REVEAL_ANIMATION_DELAY + REVEAL_ANIMATION_DURATION);
 
         });
     }
@@ -232,7 +198,7 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onResume();
         // The user has returned from the login screen. Lol wtf?
         if (transitionAnimationWhite != null && hasTransitioned) {
-            SupportAnimator blueReversed = transitionAnimationBlue.reverse();
+            final SupportAnimator blueReversed = transitionAnimationBlue.reverse();
             blueReversed.setInterpolator(new AccelerateDecelerateInterpolator());
             blueReversed.addListener(new SupportAnimator.AnimatorListener() {
                 @Override
@@ -288,7 +254,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             });
             whiteReversed.setDuration(REVEAL_ANIMATION_DURATION);
-            new Handler().postDelayed(whiteReversed::start, REVEAL_ANIMATION_DELAY_DURATION);
+            new Handler().postDelayed(whiteReversed::start, REVEAL_ANIMATION_DELAY);
             hasTransitioned = false;
         }
     }
@@ -301,15 +267,6 @@ public class WelcomeActivity extends AppCompatActivity {
         startActivity(loginActivityIntent, null);
     }
 
-    private int getScreenHeight() {
-        WindowManager wm = ContextCompat.getSystemService(this, WindowManager.class);
-        final DisplayMetrics displayMetrics = new DisplayMetrics();
-        if (wm != null) {
-            wm.getDefaultDisplay().getMetrics(displayMetrics);
-        }
-        return displayMetrics.heightPixels;
-    }
-
     /**
      * Animations for the views in this activity
      */
@@ -317,26 +274,16 @@ public class WelcomeActivity extends AppCompatActivity {
     private AnimationSet startLogoContainerAnimations() {
         mLogoCenter.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         AnimationSet mInitLogoAnimations = new AnimationSet(true);
-        TranslateAnimation trans = new TranslateAnimation(0, 0, getScreenHeight(), 0);
+        TranslateAnimation trans = new TranslateAnimation(0, 0, Service.getScreenHeight(this), 0);
 
         mInitLogoAnimations.setDuration(LOGO_Container_ANIMATION_DURATION);
         mInitLogoAnimations.setFillAfter(true);
         mInitLogoAnimations.setInterpolator(new OvershootInterpolator(0.7f));
         mInitLogoAnimations.addAnimation(trans);
-        mInitLogoAnimations.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
+        mInitLogoAnimations.setAnimationListener(new AnimationListenerAdapter() {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mLogoCenter.setLayerType(View.LAYER_TYPE_NONE, null);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
@@ -354,20 +301,10 @@ public class WelcomeActivity extends AppCompatActivity {
         Animation mAlphaAnimation = new AlphaAnimation(0f, 1f);
         mAlphaAnimation.setDuration(LOGO_ANIMATION_DURATION);
         mAlphaAnimation.setInterpolator(new DecelerateInterpolator());
-        mAlphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+        mAlphaAnimation.setAnimationListener(new AnimationListenerAdapter() {
             @Override
             public void onAnimationStart(Animation animation) {
                 mLogo.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
@@ -388,20 +325,10 @@ public class WelcomeActivity extends AppCompatActivity {
         mLogoAnimations.addAnimation(mRotateAnimation);
         mLogoAnimations.addAnimation(mAlphaAnimation);
 
-        mLogoAnimations.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
+        mLogoAnimations.setAnimationListener(new AnimationListenerAdapter() {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mLogo.setLayerType(View.LAYER_TYPE_NONE, null);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
@@ -413,20 +340,20 @@ public class WelcomeActivity extends AppCompatActivity {
     private AnimationSet startWelcomeTextLineAnimations(final TextView mWelcomeTextLine, int lineNumber) {
         mWelcomeTextLine.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
-        int travelDistance = (lineNumber < 3)
+        int travelDistance = lineNumber < 3
                 ? (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP,
                 getResources().getDimension(R.dimen.welcome_text_line_three_size),
                 getResources().getDisplayMetrics())
                 : 0;
 
-        float overshoot = (lineNumber == 1) ? 2f : 1f;
+        float overshoot = lineNumber == 1 ? 2f : 1f;
         final Animation mTranslationAnimation = new TranslateAnimation(0, 0, travelDistance, 0);
         mTranslationAnimation.setInterpolator(new OvershootInterpolator(overshoot));
 
         final Animation mAlphaAnimation = new AlphaAnimation(0f, 1f);
         mAlphaAnimation.setInterpolator(new DecelerateInterpolator());
-        mAlphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+        mAlphaAnimation.setAnimationListener(new AnimationListenerAdapter() {
             @Override
             public void onAnimationStart(Animation animation) {
                 mWelcomeTextLine.setVisibility(View.VISIBLE);
@@ -435,11 +362,6 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mWelcomeTextLine.setLayerType(View.LAYER_TYPE_NONE, null);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
             }
         });
 
@@ -470,7 +392,7 @@ public class WelcomeActivity extends AppCompatActivity {
         mContinueFABAnimations.setDuration(CONTINUE_FAB_ANIMATION_DURATION);
         mContinueFABAnimations.setInterpolator(new OvershootInterpolator(1f));
         mContinueFABAnimations.addAnimation(mTranslationAnimation);
-        mContinueFABAnimations.setAnimationListener(new Animation.AnimationListener() {
+        mContinueFABAnimations.setAnimationListener(new AnimationListenerAdapter() {
             @Override
             public void onAnimationStart(Animation animation) {
                 // Start running the show animation for the FAB icon a third into this animation
@@ -486,11 +408,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 mContinueFAB.setLayerType(View.LAYER_TYPE_NONE, null);
                 mContinueFABShadow.setLayerType(View.LAYER_TYPE_NONE, null);
             }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
         });
 
         mContinueFAB.startAnimation(mContinueFABAnimations);
@@ -498,34 +415,24 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     private void startShowContinueIconAnimations() {
-        Animation mScaleAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        Animation mRotateAnimation = new RotateAnimation(
-                0, 360,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f
-        );
-        mRotateAnimation.setRepeatCount(0);
-
-        AnimationSet mAnimations = new AnimationSet(true);
-        mAnimations.setDuration(REVEAL_ANIMATION_DURATION);
-        mAnimations.setFillAfter(true);
-        mAnimations.setInterpolator(new OvershootInterpolator(1.5f));
-        mAnimations.addAnimation(mScaleAnimation);
-        mAnimations.addAnimation(mRotateAnimation);
-
-        mContinueIcon.startAnimation(mAnimations);
+        final Animation mScaleAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        startContinueIconAnimations(mScaleAnimation);
     }
 
     private void startHideContinueIconAnimations() {
-        Animation mScaleAnimation = new ScaleAnimation(1, 0, 1, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        Animation mRotateAnimation = new RotateAnimation(
+        final Animation mScaleAnimation = new ScaleAnimation(1, 0, 1, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        startContinueIconAnimations(mScaleAnimation);
+    }
+
+    private void startContinueIconAnimations(final Animation mScaleAnimation) {
+        final Animation mRotateAnimation = new RotateAnimation(
                 0, 360,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f
         );
         mRotateAnimation.setRepeatCount(0);
 
-        AnimationSet mAnimations = new AnimationSet(true);
+        final AnimationSet mAnimations = new AnimationSet(true);
         mAnimations.setDuration(REVEAL_ANIMATION_DURATION);
         mAnimations.setFillAfter(true);
         mAnimations.setInterpolator(new OvershootInterpolator(1.5f));
@@ -534,6 +441,4 @@ public class WelcomeActivity extends AppCompatActivity {
 
         mContinueIcon.startAnimation(mAnimations);
     }
-
-
 }

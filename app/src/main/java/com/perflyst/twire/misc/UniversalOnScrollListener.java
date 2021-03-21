@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.perflyst.twire.R;
 import com.perflyst.twire.service.Service;
+import com.perflyst.twire.utils.AnimationListenerAdapter;
 import com.perflyst.twire.views.recyclerviews.AutoSpanRecyclerView;
 
 /**
@@ -109,14 +110,14 @@ public class UniversalOnScrollListener extends RecyclerView.OnScrollListener {
                 amountScrolled += dy;
 
                 // Always Scroll the decorate toolbar slower than the main one.
-                mDecorativeToolbar.setTranslationY(decoToolbarTranslationY - (dy * (float) SLOW_SCROLL_RATE));
+                mDecorativeToolbar.setTranslationY(decoToolbarTranslationY - dy * (float) SLOW_SCROLL_RATE);
                 mIconCircle.setTranslationY(iconViewTranslationY - dy);
                 mIconText.setTranslationY(iconTextViewTranslationY - dy);
 
                 if (amountScrolled < minAmountToScroll) {
                     // Update the transparency of the activity icon
                     if (mIconCircle.getAlpha() >= 0) {
-                        float newAlphaHex = 255 - (mIconCircle.getTranslationY() * -1);
+                        float newAlphaHex = 255 - mIconCircle.getTranslationY() * -1;
                         float newAlphaFloat = newAlphaHex / 255;
                         if (newAlphaFloat >= 0) {
                             mIconCircle.setAlpha(newAlphaFloat);
@@ -139,7 +140,7 @@ public class UniversalOnScrollListener extends RecyclerView.OnScrollListener {
                 amountScrolled += dy;
 
                 // Always scroll for these Views. But Scroll the decorative toolbar slower than the others
-                mDecorativeToolbar.setTranslationY(decoToolbarTranslationY - (dy * (float) SLOW_SCROLL_RATE));
+                mDecorativeToolbar.setTranslationY(decoToolbarTranslationY - dy * (float) SLOW_SCROLL_RATE);
                 mIconCircle.setTranslationY(iconViewTranslationY - dy);
                 mIconText.setTranslationY(iconTextViewTranslationY - dy);
 
@@ -168,7 +169,7 @@ public class UniversalOnScrollListener extends RecyclerView.OnScrollListener {
 
 
                     if (mIconCircle.getAlpha() >= 0) {
-                        float newAlphaHex = 255 - (mIconCircle.getTranslationY() * -1);
+                        float newAlphaHex = 255 - mIconCircle.getTranslationY() * -1;
                         float newAlphaFloat = newAlphaHex / 255;
                         if (newAlphaFloat >= 0) {
                             mIconCircle.setAlpha(newAlphaFloat);
@@ -264,35 +265,19 @@ public class UniversalOnScrollListener extends RecyclerView.OnScrollListener {
             // Be sure to use floats and the hard values 0-255 doesn't work as intended
             mShowShadowAnimation = new AlphaAnimation(0.0f, 1.0f);
             mShowShadowAnimation.setDuration(SHOW_DURATION);
-            mShowShadowAnimation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
+            mShowShadowAnimation.setAnimationListener(new AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     mToolbarShadow.setAlpha(1f);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
                 }
             });
 
             mFadeShadowAnimation = new AlphaAnimation(1.0f, 0.0f);
             mFadeShadowAnimation.setDuration(SHADOW_FADE_DURATION);
-            mFadeShadowAnimation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
+            mFadeShadowAnimation.setAnimationListener(new AnimationListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     mToolbarShadow.setAlpha(0f);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
                 }
             });
         }
